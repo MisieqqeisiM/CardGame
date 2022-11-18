@@ -1,7 +1,9 @@
 package com.example.cardgame.ui;
 
+import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.scene.layout.HBox;
+import javafx.util.Duration;
 
 public class YourHandUI extends HBox {
     int size;
@@ -16,17 +18,36 @@ public class YourHandUI extends HBox {
             getChildren().add(new EmptyCardUI());
     }
 
-    public void resize(int n) {
-        while(n > size) {
+    class WidthTransition extends Transition {
+        double from, to;
+        public WidthTransition(Duration duration, double from, double to) {
+            this.from = from;
+            this.to = to;
+            setCycleDuration(duration);
+        }
+
+        @Override
+        protected void interpolate(double v) {
+            setPrefWidth(from + v * (to - from));
+            setCenter(centerX, centerY);
+        }
+    }
+    public void addCard(Runnable onFinished) {
+        var animation = new WidthTransition(Duration.seconds(0.2), getPrefWidth(), getPrefWidth() + 20);
+        animation.setOnFinished(e->{
             getChildren().add(new EmptyCardUI());
-            size++;
-        }
-        while(n < size) {
-            getChildren().remove(0);
-            size--;
-        }
-        setPrefWidth(size * 20 + 80);
-        Platform.runLater(() -> setCenter(centerX, centerY));
+            onFinished.run();
+        });
+        animation.play();
+    }
+
+    public void removeCard(Runnable onFinished) {
+        var animation = new WidthTransition(Duration.seconds(0.2), getPrefWidth(), getPrefWidth() - 20);
+        getChildren().remove(getChildren().size() - 1);
+        animation.setOnFinished(e->{
+            onFinished.run();
+        });
+        animation.play();
     }
 
     public void setCenter(double x, double y) {

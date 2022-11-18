@@ -1,14 +1,22 @@
 package com.example.cardgame.ui;
 
+import com.example.cardgame.core.PlayerStateListener;
 import com.example.cardgame.core.UnoPlayer;
 import com.example.cardgame.core.actions.*;
-import com.example.cardgame.core.utils.TurnState;
+import com.example.cardgame.core.cards.UnoCard;
+import com.example.cardgame.core.events.PlayerEvent;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.util.Duration;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 public class PlayerUI extends UnoPlayer {
     Pane ui = new Pane();
@@ -16,6 +24,28 @@ public class PlayerUI extends UnoPlayer {
     CardUI card;
     List<YourHandUI> hands = new ArrayList<>();
     ColorPicker picker;
+
+    Queue<UIAnimation> animationQueue = new ArrayDeque<>();
+
+    abstract class UIAnimation {
+        abstract void play();
+        void onFinished() {
+            animationQueue.poll();
+            if(!animationQueue.isEmpty())
+                animationQueue.peek().play();
+            else
+                tryProcessEvent();
+        }
+    }
+
+    void tryPlay(UIAnimation animation) {
+        if(animationQueue.isEmpty()) {
+            animationQueue.add(animation);
+            animation.play();
+        } else {
+            animationQueue.add(animation);
+        }
+    }
 
     public PlayerUI() {
 
@@ -41,12 +71,55 @@ public class PlayerUI extends UnoPlayer {
         ui.getChildren().add(hand);
         ui.getChildren().add(picker);
 
-        picker.setVisible(state.turnState == TurnState.CHOOSING_PLUSFOUR_COLOR || state.turnState == TurnState.CHOOSING_WILDCARD_COLOR);
+        picker.setVisible(state.canChooseColor());
         for(int i = (state.myId + 1) % state.playerCount; i != state.myId; i = (i + 1) % state.playerCount) {
             var yourHand = new YourHandUI(state.handSizes.get(i));
             hands.add(yourHand);
             ui.getChildren().add(yourHand);
         }
+
+        state.addListener(new PlayerStateListener() {
+            @Override
+            public void onCardDrawn(int player, UnoCard card) {
+                if(player == state.myId){
+                    tryPlay(new UIAnimation() {
+                        @Override
+                        void play() {
+                            hand.addCard(card, this::onFinished);
+                        }
+                    });
+                } else {
+                    var handID = (player - state.myId) % state.playerCount - 1;
+                    tryPlay(new UIAnimation() {
+                        @Override
+                        void play() {
+                            hands.get(handID).addCard(this::onFinished);
+                        }
+                    });
+
+                }
+            }
+
+            @Override
+            public void onCardPlayed(int player, UnoCard card) {
+                if(player == state.myId){
+                    tryPlay(new UIAnimation() {
+                        @Override
+                        void play() {
+                            hand.removeCard(card, this::onFinished);
+                        }
+                    });
+                } else {
+                    var handID = (player - state.myId) % state.playerCount - 1;
+                    tryPlay(new UIAnimation() {
+                        @Override
+                        void play() {
+                            hands.get(handID).removeCard(this::onFinished);
+                        }
+                    });
+                }
+            }
+        });
     }
 
     public void realign() {
@@ -75,17 +148,18 @@ public class PlayerUI extends UnoPlayer {
         return ui;
     }
 
+    void tryProcessEvent() {
+        PlayerEvent event;
+        while(animationQueue.isEmpty() && (event = nextEvent()) != null) {
+            picker.setVisible(state.canChooseColor());
+            card.update(state.card);
+            System.out.println(event);
+        }
+    }
+
     @Override
     protected void eventNotify() {
-        var event = nextEvent();
-        for(int i = 0; i < hands.size(); i++) {
-            var player = (i + 1) % state.playerCount;
-            hands.get(i).resize(state.handSizes.get(player));
-        }
-        picker.setVisible(state.turnState == TurnState.CHOOSING_PLUSFOUR_COLOR || state.turnState == TurnState.CHOOSING_WILDCARD_COLOR);
-        hand.update(state.hand);
-        card.update(state.card);
-        System.out.println(event);
+        tryProcessEvent();
     }
 
 }

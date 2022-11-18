@@ -1,7 +1,6 @@
 package com.example.cardgame.core.utils;
 
 import com.example.cardgame.core.UnoPlayer;
-import com.example.cardgame.core.playerevents.PlayerEvent;
 
 import java.util.Random;
 

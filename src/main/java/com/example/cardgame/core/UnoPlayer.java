@@ -1,7 +1,7 @@
 package com.example.cardgame.core;
 
 import com.example.cardgame.core.actions.Action;
-import com.example.cardgame.core.playerevents.PlayerEvent;
+import com.example.cardgame.core.events.PlayerEvent;
 
 import java.util.ArrayDeque;
 import java.util.Queue;

@@ -6,7 +6,7 @@ import com.example.cardgame.core.cards.Color;
 import java.util.List;
 
 public class ColorChosen extends CommonEvent {
-    private final Color color;
+    public final Color color;
     public ColorChosen(Color color) {
         this.color = color;
     }
@@ -17,7 +17,7 @@ public class ColorChosen extends CommonEvent {
     }
     @Override
     protected List<GameEvent> applyAndGetNextEvents(CommonState state) {
-        state.chooseColor(color);
+        state.turnState.onColorChosen(state, this);
         return List.of();
     }
 }

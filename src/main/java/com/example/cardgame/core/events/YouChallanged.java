@@ -1,7 +1,6 @@
-package com.example.cardgame.core.playerevents;
+package com.example.cardgame.core.events;
 
 import com.example.cardgame.core.PlayerState;
-import com.example.cardgame.core.utils.TurnState;
 
 public class YouChallanged implements PlayerEvent{
     private final boolean won;
@@ -13,7 +12,7 @@ public class YouChallanged implements PlayerEvent{
 
     @Override
     public void apply(PlayerState state) {
-        state.turnState = TurnState.CARD_PLAYED;
+        state.turnState.onYouChallenged(state, this);
     }
 
     @Override

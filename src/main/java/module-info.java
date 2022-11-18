@@ -5,4 +5,6 @@ module com.example.cardgame {
 
     opens com.example.cardgame to javafx.fxml;
     exports com.example.cardgame;
+    exports com.example.cardgame.core;
+    opens com.example.cardgame.core to javafx.fxml;
 }

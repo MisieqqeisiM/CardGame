@@ -1,10 +1,10 @@
-package com.example.cardgame.core.playerevents;
+package com.example.cardgame.core.events;
 
 import com.example.cardgame.core.PlayerState;
 
 public class YouDrawCards implements PlayerEvent{
-    private final int player;
-    private final int number;
+    public final int player;
+    public final int number;
 
     public YouDrawCards(int player, int number) {
         this.player = player;
@@ -17,8 +17,7 @@ public class YouDrawCards implements PlayerEvent{
     }
 
     @Override
-    public void apply(PlayerState view) {
-        for(var i = 0; i < number; i++)
-            view.addCard(player, null);
+    public void apply(PlayerState state) {
+        state.turnState.onYouDrawCards(state, this);
     }
 }

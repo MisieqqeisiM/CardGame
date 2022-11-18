@@ -1,9 +1,7 @@
 package com.example.cardgame.core;
 
-import com.example.cardgame.core.actions.Action;
-import com.example.cardgame.core.events.ActionFrame;
+import com.example.cardgame.core.actions.ActionFrame;
 import com.example.cardgame.core.events.GameEvent;
-import javafx.util.Pair;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

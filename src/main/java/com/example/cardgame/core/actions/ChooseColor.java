@@ -2,10 +2,8 @@ package com.example.cardgame.core.actions;
 
 import com.example.cardgame.core.GameState;
 import com.example.cardgame.core.cards.Color;
-import com.example.cardgame.core.events.ActionFrame;
 import com.example.cardgame.core.events.ColorChosen;
 import com.example.cardgame.core.events.GameEvent;
-import com.example.cardgame.core.utils.TurnState;
 
 import java.util.List;
 
@@ -18,9 +16,8 @@ public class ChooseColor implements Action {
 
     @Override
     public boolean isLegal(GameState state, ActionFrame frame) {
-        if(state.currentPlayer != frame.origin()) return false;
-        return state.turnState == TurnState.CHOOSING_PLUSFOUR_COLOR
-                || state.turnState == TurnState.CHOOSING_WILDCARD_COLOR;
+        if(!state.turnState.isActionTypeLegal(this)) return false;
+        return state.currentPlayer == frame.origin();
     }
 
     @Override

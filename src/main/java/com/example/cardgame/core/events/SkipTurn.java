@@ -7,8 +7,7 @@ import java.util.List;
 public class SkipTurn extends CommonEvent{
     @Override
     protected List<GameEvent> applyAndGetNextEvents(CommonState state) {
-        state.nextTurn();
-        state.nextTurn();
+        state.turnState.onSkipTurn(state, this);
         return List.of();
     }
 

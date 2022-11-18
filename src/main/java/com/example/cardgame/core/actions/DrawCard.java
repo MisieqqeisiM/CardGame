@@ -2,15 +2,14 @@ package com.example.cardgame.core.actions;
 
 import com.example.cardgame.core.GameState;
 import com.example.cardgame.core.events.*;
-import com.example.cardgame.core.utils.TurnState;
 
 import java.util.List;
 
 public class DrawCard implements Action {
     @Override
     public boolean isLegal(GameState state, ActionFrame frame) {
-        if(state.currentPlayer != frame.origin()) return false;
-        return state.turnState == TurnState.CHOOSING_CARD;
+        if(!state.turnState.isActionTypeLegal(this)) return false;
+        return state.currentPlayer == frame.origin();
     }
 
     @Override

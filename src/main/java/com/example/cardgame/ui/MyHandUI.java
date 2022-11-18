@@ -2,6 +2,8 @@ package com.example.cardgame.ui;
 
 import com.example.cardgame.core.cards.UnoCard;
 import com.example.cardgame.core.utils.Hand;
+import com.example.cardgame.core.utils.HandListener;
+import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.scene.Cursor;
 import javafx.scene.layout.HBox;
@@ -41,6 +43,57 @@ public class MyHandUI extends HBox {
                 selectedCardID = null;
             }
         });
+    }
+
+    public void addCard(UnoCard card, Runnable onFinished) {
+        if(selectedCardID != null) {
+            unhighlight(this.cards.get(selectedCardID));
+            selectedCardID = null;
+        }
+        int i = 0;
+        for(; i < cards.size(); i++)
+            if(cards.get(i).getCard().compareTo(card) >= 0)
+                break;
+        var placeholder = new CardPlaceholder(false);
+        getChildren().add(i, placeholder);
+        var animation = placeholder.grow();
+        int finalI = i;
+        animation.setOnFinished(e -> {
+            var cardUI = new CardUI(card);
+            cardUI.setOnMouseClicked(_e -> onPick.accept(cardUI.getCard()));
+            cards.add(finalI, cardUI);
+            getChildren().set(finalI, cardUI);
+            onFinished.run();
+        });
+
+        setPrefWidth(getPrefWidth() + 70);
+        setMaxWidth(getMaxWidth() + 70);
+        setCenter(centerX, centerY);
+        animation.play();
+    }
+
+    public void removeCard(UnoCard card, Runnable onFinished) {
+        if(selectedCardID != null) {
+            unhighlight(this.cards.get(selectedCardID));
+            selectedCardID = null;
+        }
+        int i = 0;
+        for(; i < cards.size(); i++)
+            if(cards.get(i).getCard().compareTo(card) == 0)
+                break;
+        int finalI = i;
+        var placeholder = new CardPlaceholder(true);
+        getChildren().set(i, placeholder);
+        var animation = placeholder.shrink();
+        animation.setOnFinished(e -> {
+            cards.remove(finalI);
+            getChildren().remove(placeholder);
+            setPrefWidth(getPrefWidth() - 70);
+            setMaxWidth(getMaxWidth() - 70);
+            setCenter(centerX, centerY);
+            onFinished.run();
+        });
+        animation.play();
     }
 
     public void update(Hand hand) {

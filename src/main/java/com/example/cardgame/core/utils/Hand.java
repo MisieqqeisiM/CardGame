@@ -23,6 +23,7 @@ public class Hand implements Cloneable{
         size = counts.values().stream().mapToInt(Integer::intValue).sum();
     }
 
+
     public void addCard(UnoCard card) {
         counts.merge(card, 1, Integer::sum);
         size++;

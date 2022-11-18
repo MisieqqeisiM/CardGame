@@ -1,11 +1,10 @@
-package com.example.cardgame.core.playerevents;
+package com.example.cardgame.core.events;
 
 import com.example.cardgame.core.PlayerState;
 import com.example.cardgame.core.utils.Hand;
-import com.example.cardgame.core.utils.TurnState;
 
 public class IChallenged implements PlayerEvent{
-    private final Hand hand;
+    public final Hand hand;
 
     public IChallenged(Hand hand) {
         this.hand = hand;
@@ -14,7 +13,7 @@ public class IChallenged implements PlayerEvent{
 
     @Override
     public void apply(PlayerState state) {
-        state.turnState = TurnState.CARD_PLAYED;
+        state.turnState.onIChallenged(state, this);
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.example.cardgame.core.events;
 
 import com.example.cardgame.core.GameState;
-import com.example.cardgame.core.playerevents.PlayerEvent;
 
 import java.util.List;
 

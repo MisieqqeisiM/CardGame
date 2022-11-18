@@ -1,4 +1,4 @@
-package com.example.cardgame.core.playerevents;
+package com.example.cardgame.core.events;
 
 import com.example.cardgame.core.PlayerState;
 import com.example.cardgame.core.cards.UnoCard;
@@ -6,14 +6,14 @@ import com.example.cardgame.core.cards.UnoCard;
 import java.util.List;
 
 public class IDrawCards implements PlayerEvent{
-    private final List<UnoCard> cards;
+    public final List<UnoCard> cards;
     public IDrawCards(List<UnoCard> cards) {
         this.cards = cards;
     }
 
     @Override
-    public void apply(PlayerState view) {
-        view.hand.addCards(cards.stream());
+    public void apply(PlayerState state) {
+        state.turnState.onIDrawCards(state, this);
     }
 
     @Override

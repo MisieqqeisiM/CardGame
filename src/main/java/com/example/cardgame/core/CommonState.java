@@ -1,12 +1,12 @@
 package com.example.cardgame.core;
 
+import com.example.cardgame.core.actions.ChooseColor;
 import com.example.cardgame.core.cards.Color;
 import com.example.cardgame.core.cards.PlusFourCard;
 import com.example.cardgame.core.cards.UnoCard;
 import com.example.cardgame.core.cards.WildCard;
 import com.example.cardgame.core.utils.Direction;
-import com.example.cardgame.core.utils.Hand;
-import com.example.cardgame.core.utils.TurnState;
+import com.example.cardgame.turnstates.*;
 
 public abstract class CommonState {
     public int playerCount;
@@ -35,8 +35,9 @@ public abstract class CommonState {
 
     public void nextTurn() {
         currentPlayer = nextPlayer();
-        turnState = TurnState.CHOOSING_CARD;
+        turnState = new ChoosingCard();
     }
+
 
 
     public void reverseDirection() {
@@ -47,21 +48,6 @@ public abstract class CommonState {
             case LEFT -> (currentPlayer + playerCount - 1) % playerCount;
             case RIGHT -> (currentPlayer + 1) % playerCount;
         };
-    }
-
-    public void chooseColor(Color color) {
-        if (color == Color.NONE) throw new RuntimeException("NONE is not a creative color");
-        switch (turnState) {
-            case CHOOSING_PLUSFOUR_COLOR -> {
-                card = new PlusFourCard(color);
-                turnState = TurnState.CHALLENGE;
-            }
-            case CHOOSING_WILDCARD_COLOR -> {
-                card = new WildCard(color);
-                nextTurn();
-            }
-            default -> throw new RuntimeException("No color to choose in this state");
-        }
     }
 
     public void setCard(UnoCard card) {

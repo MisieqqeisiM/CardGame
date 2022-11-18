@@ -1,4 +1,4 @@
-package com.example.cardgame.core.playerevents;
+package com.example.cardgame.core.events;
 
 import com.example.cardgame.core.PlayerState;
 
