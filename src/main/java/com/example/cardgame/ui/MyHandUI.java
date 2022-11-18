@@ -7,6 +7,7 @@ import javafx.animation.Transition;
 import javafx.application.Platform;
 import javafx.scene.Cursor;
 import javafx.scene.layout.HBox;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +46,21 @@ public class MyHandUI extends HBox {
         });
     }
 
+    class WidthTransition extends Transition {
+        double from, to;
+        public WidthTransition(Duration duration, double from, double to) {
+            this.from = from;
+            this.to = to;
+            setCycleDuration(duration);
+        }
+
+        @Override
+        protected void interpolate(double v) {
+            setPrefWidth(from + v * (to - from));
+            setCenter(centerX, centerY);
+        }
+    }
+
     public void addCard(UnoCard card, Runnable onFinished) {
         if(selectedCardID != null) {
             unhighlight(this.cards.get(selectedCardID));
@@ -66,9 +82,8 @@ public class MyHandUI extends HBox {
             onFinished.run();
         });
 
-        setPrefWidth(getPrefWidth() + 70);
         setMaxWidth(getMaxWidth() + 70);
-        setCenter(centerX, centerY);
+        new WidthTransition(Duration.seconds(0.3), getPrefWidth(), getPrefWidth()+70).play();
         animation.play();
     }
 
@@ -88,11 +103,11 @@ public class MyHandUI extends HBox {
         animation.setOnFinished(e -> {
             cards.remove(finalI);
             getChildren().remove(placeholder);
-            setPrefWidth(getPrefWidth() - 70);
             setMaxWidth(getMaxWidth() - 70);
             setCenter(centerX, centerY);
             onFinished.run();
         });
+        new WidthTransition(Duration.seconds(0.3), getPrefWidth(), getPrefWidth()-70).play();
         animation.play();
     }
 

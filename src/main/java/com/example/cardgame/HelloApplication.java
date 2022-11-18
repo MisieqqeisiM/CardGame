@@ -23,11 +23,13 @@ public class HelloApplication extends Application {
 
         var player = new PlayerUI();
 
-        var game = new UnoGame(4);
+        var game = new UnoGame(5);
         game.join(player);
         game.join(new RandomPlayer());
         game.join(new RandomPlayer());
         game.join(new RandomPlayer());
+        game.join(new RandomPlayer());
+
 
         root.getChildren().add(player.getUI());
         root.setBackground(new Background(new BackgroundFill(new Color(0.3, 0.3, 0.3, 1.0), CornerRadii.EMPTY, Insets.EMPTY)));

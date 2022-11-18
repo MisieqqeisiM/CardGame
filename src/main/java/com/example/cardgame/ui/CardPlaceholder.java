@@ -20,7 +20,7 @@ public class CardPlaceholder extends Pane {
             setPrefWidth(100);
         else
             setPrefWidth(30);
-        setBackground(new Background(new BackgroundFill(Color.GREEN, new CornerRadii(10), new Insets(3))));
+        //setBackground(new Background(new BackgroundFill(Color.GREEN, new CornerRadii(10), new Insets(3))));
     }
     class WidthTransition extends Transition {
         double from, to;
@@ -36,9 +36,9 @@ public class CardPlaceholder extends Pane {
         }
     }
     Transition grow() {
-        return new WidthTransition(Duration.seconds(0.2), 30, 100);
+        return new WidthTransition(Duration.seconds(0.3), 30, 100);
     }
     Transition shrink() {
-        return new WidthTransition(Duration.seconds(0.2), 100, 30);
+        return new WidthTransition(Duration.seconds(0.3), 100, 30);
     }
 }

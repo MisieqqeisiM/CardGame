@@ -33,7 +33,7 @@ public class YourHandUI extends HBox {
         }
     }
     public void addCard(Runnable onFinished) {
-        var animation = new WidthTransition(Duration.seconds(0.2), getPrefWidth(), getPrefWidth() + 20);
+        var animation = new WidthTransition(Duration.seconds(0.3), getPrefWidth(), getPrefWidth() + 20);
         animation.setOnFinished(e->{
             getChildren().add(new EmptyCardUI());
             onFinished.run();
@@ -42,7 +42,7 @@ public class YourHandUI extends HBox {
     }
 
     public void removeCard(Runnable onFinished) {
-        var animation = new WidthTransition(Duration.seconds(0.2), getPrefWidth(), getPrefWidth() - 20);
+        var animation = new WidthTransition(Duration.seconds(0.3), getPrefWidth(), getPrefWidth() - 20);
         getChildren().remove(getChildren().size() - 1);
         animation.setOnFinished(e->{
             onFinished.run();

@@ -4,9 +4,11 @@ import com.example.cardgame.core.PlayerStateListener;
 import com.example.cardgame.core.UnoPlayer;
 import com.example.cardgame.core.actions.*;
 import com.example.cardgame.core.cards.UnoCard;
+import com.example.cardgame.core.events.ColorChosen;
 import com.example.cardgame.core.events.PlayerEvent;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -102,11 +104,31 @@ public class PlayerUI extends UnoPlayer {
 
             @Override
             public void onCardPlayed(int player, UnoCard card) {
+                CardUI flyingCard = new CardUI(card);
+                var flight = new TranslateTransition();
+                flight.setNode(flyingCard);
+                flyingCard.setTranslateX(getHandX(player) - 50);
+                flyingCard.setTranslateY(getHandY(player) - 75);
+                flight.setDuration(Duration.seconds(0.3));
+                flight.setToX(ui.getWidth() / 2 - 50);
+                flight.setToY(ui.getHeight() / 2 - 75);
+
+                ui.getChildren().add(flyingCard);
+
+                flight.setOnFinished(e -> {
+                    System.out.println("co");
+                    ui.getChildren().remove(flyingCard);
+                });
+                flight.play();
+
                 if(player == state.myId){
                     tryPlay(new UIAnimation() {
                         @Override
                         void play() {
-                            hand.removeCard(card, this::onFinished);
+                            hand.removeCard(card, () -> {
+                                PlayerUI.this.card.update(card);
+                                this.onFinished();
+                            });
                         }
                     });
                 } else {
@@ -114,12 +136,29 @@ public class PlayerUI extends UnoPlayer {
                     tryPlay(new UIAnimation() {
                         @Override
                         void play() {
-                            hands.get(handID).removeCard(this::onFinished);
+                            hands.get(handID).removeCard(() -> {
+                                PlayerUI.this.card.update(card);
+                                this.onFinished();
+                            });
                         }
                     });
                 }
             }
         });
+    }
+
+    double getHandX(int player) {
+        var handID = (player - state.myId) % state.playerCount;
+        var centerX = ui.getWidth() / 2;
+        final var tableRadiusX = 300;
+        return centerX - tableRadiusX * Math.sin(handID * 2 * Math.PI / state.playerCount);
+    }
+
+    double getHandY(int player) {
+        var handID = (player - state.myId) % state.playerCount;
+        var centerY = ui.getHeight() / 2;
+        final var tableRadiusY = 300;
+        return centerY + tableRadiusY * Math.cos(handID * 2 * Math.PI / state.playerCount);
     }
 
     public void realign() {
@@ -152,7 +191,9 @@ public class PlayerUI extends UnoPlayer {
         PlayerEvent event;
         while(animationQueue.isEmpty() && (event = nextEvent()) != null) {
             picker.setVisible(state.canChooseColor());
-            card.update(state.card);
+            if(event instanceof ColorChosen) {
+                card.update(state.card);
+            }
             System.out.println(event);
         }
     }
