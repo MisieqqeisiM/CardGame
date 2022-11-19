@@ -32,6 +32,9 @@ public class YourHandUI extends HBox {
             setCenter(centerX, centerY);
         }
     }
+    public double getNewCardX() {
+        return getWidth();
+    }
     public void addCard(Runnable onFinished) {
         var animation = new WidthTransition(Duration.seconds(0.3), getPrefWidth(), getPrefWidth() + 20);
         animation.setOnFinished(e->{

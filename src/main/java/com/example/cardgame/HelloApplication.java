@@ -32,7 +32,7 @@ public class HelloApplication extends Application {
 
 
         root.getChildren().add(player.getUI());
-        root.setBackground(new Background(new BackgroundFill(new Color(0.3, 0.3, 0.3, 1.0), CornerRadii.EMPTY, Insets.EMPTY)));
+        root.setBackground(new Background(new BackgroundFill(new Color(0.7, 0.7, 0.7, 1.0), CornerRadii.EMPTY, Insets.EMPTY)));
 
         player.getUI().prefWidthProperty().bind(root.widthProperty());
         player.getUI().prefHeightProperty().bind(root.heightProperty());

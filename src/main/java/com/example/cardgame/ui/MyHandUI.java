@@ -60,25 +60,27 @@ public class MyHandUI extends HBox {
             setCenter(centerX, centerY);
         }
     }
+    public int getCardPosition(UnoCard card) {
+        for(int i = 0; i < cards.size(); i++)
+            if(cards.get(i).getCard().compareTo(card) >= 0)
+                return i;
+        return cards.size();
+    }
 
     public void addCard(UnoCard card, Runnable onFinished) {
         if(selectedCardID != null) {
             unhighlight(this.cards.get(selectedCardID));
             selectedCardID = null;
         }
-        int i = 0;
-        for(; i < cards.size(); i++)
-            if(cards.get(i).getCard().compareTo(card) >= 0)
-                break;
+        int cardPosition = getCardPosition(card);
         var placeholder = new CardPlaceholder(false);
-        getChildren().add(i, placeholder);
+        getChildren().add(cardPosition, placeholder);
         var animation = placeholder.grow();
-        int finalI = i;
         animation.setOnFinished(e -> {
             var cardUI = new CardUI(card);
             cardUI.setOnMouseClicked(_e -> onPick.accept(cardUI.getCard()));
-            cards.add(finalI, cardUI);
-            getChildren().set(finalI, cardUI);
+            cards.add(cardPosition, cardUI);
+            getChildren().set(cardPosition, cardUI);
             onFinished.run();
         });
 
@@ -92,16 +94,12 @@ public class MyHandUI extends HBox {
             unhighlight(this.cards.get(selectedCardID));
             selectedCardID = null;
         }
-        int i = 0;
-        for(; i < cards.size(); i++)
-            if(cards.get(i).getCard().compareTo(card) == 0)
-                break;
-        int finalI = i;
+        int cardPosition = getCardPosition(card);
         var placeholder = new CardPlaceholder(true);
-        getChildren().set(i, placeholder);
+        getChildren().set(cardPosition, placeholder);
         var animation = placeholder.shrink();
         animation.setOnFinished(e -> {
-            cards.remove(finalI);
+            cards.remove(cardPosition);
             getChildren().remove(placeholder);
             setMaxWidth(getMaxWidth() - 70);
             setCenter(centerX, centerY);

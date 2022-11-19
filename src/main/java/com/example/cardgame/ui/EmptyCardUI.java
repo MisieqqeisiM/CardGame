@@ -13,4 +13,8 @@ public class EmptyCardUI extends StackPane {
         setBackground(new Background(new BackgroundFill(Color.gray(0.5), new CornerRadii(10), new Insets(3))));
         setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, new CornerRadii(10), new BorderWidths(5))));
     }
+    public void setCenter(double x, double y) {
+        setLayoutX(x - getPrefWidth() / 2);
+        setLayoutY(y - getPrefHeight() / 2);
+    }
 }

@@ -33,12 +33,22 @@ public class PlayerState extends CommonState {
     public boolean canChooseColor() {
         return turnState.isActionTypeLegal(new ChooseColor(Color.RED)) && currentPlayer == myId;
     }
+
+    public boolean canChallenge() {
+        return turnState.isActionTypeLegal(new AcceptChallenge()) && nextPlayer() == myId;
+    }
     @Override
     public void addCard(int player, UnoCard card) {
         listeners.forEach(listener->listener.onCardDrawn(player, card));
         handSizes.set(player, handSizes.get(player) + 1);
         if(myId == player)
             hand.addCard(card);
+    }
+
+    @Override
+    public void nextTurn() {
+        super.nextTurn();
+        listeners.forEach(listener->listener.onNextRound(currentPlayer));
     }
 
     @Override
