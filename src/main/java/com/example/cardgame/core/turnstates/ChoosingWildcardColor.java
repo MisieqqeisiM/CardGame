@@ -1,4 +1,4 @@
-package com.example.cardgame.turnstates;
+package com.example.cardgame.core.turnstates;
 
 import com.example.cardgame.core.CommonState;
 import com.example.cardgame.core.PlayerState;

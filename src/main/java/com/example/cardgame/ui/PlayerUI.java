@@ -4,8 +4,7 @@ import com.example.cardgame.core.PlayerStateListener;
 import com.example.cardgame.core.UnoPlayer;
 import com.example.cardgame.core.actions.*;
 import com.example.cardgame.core.cards.UnoCard;
-import com.example.cardgame.core.events.ColorChosen;
-import com.example.cardgame.core.events.PlayerEvent;
+import com.example.cardgame.core.events.*;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.scene.Cursor;
@@ -32,6 +31,7 @@ public class PlayerUI extends UnoPlayer {
 
     EmptyCardUI deck;
     ChallengeButtons challengeButtons;
+    Notifier notifier;
 
     Queue<UIAnimation> animationQueue = new ArrayDeque<>();
 
@@ -79,6 +79,8 @@ public class PlayerUI extends UnoPlayer {
             deck.setScaleY(1);
         });
 
+        notifier = new Notifier();
+
         deck.setCursor(Cursor.HAND);
         deck.setOnMouseClicked(e -> playAction(new DrawCard()));
 
@@ -98,6 +100,7 @@ public class PlayerUI extends UnoPlayer {
         ui.getChildren().add(playerMarker);
         ui.getChildren().add(picker);
         ui.getChildren().add(challengeButtons);
+        ui.getChildren().add(notifier);
 
         state.addListener(new PlayerStateListener() {
             @Override
@@ -112,13 +115,12 @@ public class PlayerUI extends UnoPlayer {
                         }
                     });
                 } else {
-                    var handID = (player - state.myId) % state.playerCount - 1;
                     flyingCard = new EmptyCardUI();
                     tryPlay(new UIAnimation() {
                         @Override
                         void play() {
                             flyingCard(card, getDeckX(), getDeckY(), getHandX(player) + getHand(player).getPrefWidth() / 2 - 40, getHandY(player));
-                            hands.get(handID).addCard(this::onFinished);
+                            getHand(player).addCard(this::onFinished);
                         }
                     });
                 }
@@ -138,12 +140,11 @@ public class PlayerUI extends UnoPlayer {
                         }
                     });
                 } else {
-                    var handID = (player - state.myId) % state.playerCount - 1;
                     tryPlay(new UIAnimation() {
                         @Override
                         void play() {
                             flyingCard(card, getHand(player).getLayoutX() + getHand(player).getPrefWidth() - 50, getHandY(player), ui.getWidth() / 2, ui.getHeight() / 2);
-                            hands.get(handID).removeCard(() -> {
+                            getHand(player).removeCard(() -> {
                                 PlayerUI.this.card.update(card);
                                 this.onFinished();
                             });
@@ -191,14 +192,14 @@ public class PlayerUI extends UnoPlayer {
     }
 
     double getHandX(int player) {
-        var handID = (player - state.myId) % state.playerCount;
+        var handID = euclideanMod(player - state.myId, state.playerCount);
         var centerX = ui.getWidth() / 2;
         final var tableRadiusX = 300;
         return centerX - tableRadiusX * Math.sin(handID * 2 * Math.PI / state.playerCount);
     }
 
     double getHandY(int player) {
-        var handID = (player - state.myId) % state.playerCount;
+        var handID = euclideanMod(player - state.myId, state.playerCount);
         var centerY = ui.getHeight() / 2;
         final var tableRadiusY = 300;
         return centerY + tableRadiusY * Math.cos(handID * 2 * Math.PI / state.playerCount);
@@ -211,12 +212,19 @@ public class PlayerUI extends UnoPlayer {
         return ui.getHeight() - 100;
     }
 
+    static int euclideanMod(int x, int y) {
+        int r = Math.abs(x) % Math.abs(y);
+        r *= Math.signum(x);
+        r = (r + Math.abs(y)) % Math.abs(y);
+        return r;
+    }
     YourHandUI getHand(int player) {
-        var handID = (player - state.myId) % state.playerCount - 1;
+        var handID = euclideanMod(player - state.myId, state.playerCount) - 1;
         return hands.get(handID);
     }
 
     public void realign() {
+        if(state == null) return;
         var centerX = ui.getWidth() / 2;
         var centerY = ui.getHeight() / 2;
 
@@ -239,6 +247,7 @@ public class PlayerUI extends UnoPlayer {
         card.setCenter(centerX, centerY);
         picker.setCenter(centerX, centerY - 150);
         deck.setCenter(getDeckX(), getDeckY());
+        notifier.setCenter(centerX, 0);
         challengeButtons.setLayoutX(centerX - challengeButtons.getWidth()/2);
         challengeButtons.setLayoutY(centerY + 100);
     }
@@ -250,6 +259,16 @@ public class PlayerUI extends UnoPlayer {
     void tryProcessEvent() {
         PlayerEvent event;
         while(animationQueue.isEmpty() && (event = nextEvent()) != null) {
+            if(event instanceof YouChallanged)
+                if(((YouChallanged)event).won)
+                    notifier.showMessage("Challenge won");
+                else
+                    notifier.showMessage("Challenge lost");
+            if(event instanceof IChallenged)
+                if(((IChallenged)event).won)
+                    notifier.showMessage("Challenge won");
+                else
+                    notifier.showMessage("Challenge lost");
             picker.setVisible(state.canChooseColor());
             challengeButtons.setVisible(state.canChallenge());
             if(event instanceof ColorChosen) {
@@ -260,7 +279,7 @@ public class PlayerUI extends UnoPlayer {
     }
 
     @Override
-    protected void eventNotify() {
+    public void eventNotify() {
         tryProcessEvent();
     }
 

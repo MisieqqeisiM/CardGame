@@ -5,9 +5,11 @@ import com.example.cardgame.core.utils.Hand;
 
 public class IChallenged implements PlayerEvent{
     public final Hand hand;
+    public final boolean won;
 
-    public IChallenged(Hand hand) {
+    public IChallenged(Hand hand, boolean won) {
         this.hand = hand;
+        this.won = won;
     }
 
 

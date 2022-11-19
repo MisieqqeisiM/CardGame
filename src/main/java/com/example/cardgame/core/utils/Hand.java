@@ -3,6 +3,7 @@ package com.example.cardgame.core.utils;
 import com.example.cardgame.core.cards.PlusFourCard;
 import com.example.cardgame.core.cards.UnoCard;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.function.Consumer;
@@ -10,7 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Hand implements Cloneable{
+public class Hand implements Cloneable, Serializable {
     TreeMap<UnoCard, Integer> counts;
     int size;
 

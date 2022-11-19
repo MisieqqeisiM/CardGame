@@ -12,18 +12,18 @@ public abstract class UnoPlayer {
     private Queue<PlayerEvent> events = new ArrayDeque<>();
 
     public UnoPlayer() {}
-    void load(PlayerState state, PlayerControls controls) {
+    public void load(PlayerState state, PlayerControls controls) {
         this.state = state;
         this.controls = controls;
         onLoad();
     }
 
 
-    void enqueue(PlayerEvent event) {
+    public void enqueue(PlayerEvent event) {
         events.add(event);
     }
 
-    protected abstract void eventNotify();
+    public abstract void eventNotify();
 
 
     protected final void playAction(Action action) {

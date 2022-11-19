@@ -17,7 +17,7 @@ public class UnoGame {
         state = new GameState(players);
     }
 
-    public void join(UnoPlayer player) {
+    public synchronized void join(UnoPlayer player) {
         int playerID = players.size();
         player.load(state.getPlayerView(playerID), action -> {
             var frame = new ActionFrame(playerID);
@@ -27,7 +27,7 @@ public class UnoGame {
         players.add(player);
     }
 
-    private void applyEvents(List<GameEvent> events) {
+    private synchronized void applyEvents(List<GameEvent> events) {
         if(events.isEmpty()) return;
         var newEvents = new ArrayList<GameEvent>();
         events.forEach(event -> {

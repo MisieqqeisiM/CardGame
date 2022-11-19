@@ -1,4 +1,4 @@
-package com.example.cardgame.turnstates;
+package com.example.cardgame.core.turnstates;
 
 import com.example.cardgame.core.CommonState;
 import com.example.cardgame.core.GameState;
@@ -7,9 +7,10 @@ import com.example.cardgame.core.actions.Action;
 import com.example.cardgame.core.events.*;
 import com.example.cardgame.core.events.CardPlayed;
 
+import java.io.Serializable;
 import java.util.List;
 
-public interface TurnState {
+public interface TurnState extends Serializable {
     default void onCardPlayed(CommonState state, CardPlayed event) {
         throw new RuntimeException("Unexpected Event");
     }

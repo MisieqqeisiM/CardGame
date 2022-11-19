@@ -5,9 +5,10 @@ import com.example.cardgame.core.GameState;
 import java.util.List;
 
 public class ChallengeAccepted implements GameEvent {
+    private boolean won;
     @Override
     public List<GameEvent> applyAndGetNextEvents(GameState state) {
-        boolean won = state.hands.get(state.currentPlayer).losesChallenge(state.previousCard);
+        won = state.hands.get(state.currentPlayer).losesChallenge(state.previousCard);
         state.turnState.onChallengeAccepted(state, this);
         if(won) return List.of(new DrawCards(state.currentPlayer, 4), new NextTurn());
         else return List.of(new DrawCards(state.nextPlayer(), 6), new NextTurn());
@@ -17,7 +18,7 @@ public class ChallengeAccepted implements GameEvent {
     public PlayerEvent getPlayerEvent(int player, GameState state) {
         var hand = state.hands.get(state.currentPlayer);
         if(player == state.nextPlayer())
-            return new IChallenged(hand.clone());
+            return new IChallenged(hand.clone(), won);
         else
             return new YouChallanged(hand.losesChallenge(state.previousCard));
     }

@@ -2,9 +2,6 @@ package com.example.cardgame.core.events;
 
 import com.example.cardgame.core.CommonState;
 import com.example.cardgame.core.cards.*;
-import com.example.cardgame.turnstates.ChoosingPlusFourColor;
-import com.example.cardgame.turnstates.ChoosingWildcardColor;
-import com.example.cardgame.turnstates.RoundEnd;
 
 import java.util.List;
 

@@ -1,14 +1,12 @@
 package com.example.cardgame.core;
 
-import com.example.cardgame.core.actions.ChooseColor;
-import com.example.cardgame.core.cards.Color;
-import com.example.cardgame.core.cards.PlusFourCard;
 import com.example.cardgame.core.cards.UnoCard;
-import com.example.cardgame.core.cards.WildCard;
 import com.example.cardgame.core.utils.Direction;
-import com.example.cardgame.turnstates.*;
+import com.example.cardgame.core.turnstates.*;
 
-public abstract class CommonState {
+import java.io.Serializable;
+
+public abstract class CommonState implements Serializable {
     public int playerCount;
     public int currentPlayer;
     public Direction direction;

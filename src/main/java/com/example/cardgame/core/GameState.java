@@ -4,7 +4,7 @@ import com.example.cardgame.core.cards.UnoCard;
 import com.example.cardgame.core.cards.UnoDeck;
 import com.example.cardgame.core.utils.Direction;
 import com.example.cardgame.core.utils.Hand;
-import com.example.cardgame.turnstates.ChoosingCard;
+import com.example.cardgame.core.turnstates.ChoosingCard;
 
 import java.util.List;
 import java.util.stream.Stream;

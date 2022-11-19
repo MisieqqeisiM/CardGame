@@ -7,7 +7,7 @@ import java.util.Random;
 public final class RandomPlayer extends UnoPlayer {
     Random random = new Random();
     @Override
-    protected void eventNotify() {
+    public void eventNotify() {
         var event = nextEvent();
         var actions = state.getLegalActions();
         if(!actions.isEmpty()) {

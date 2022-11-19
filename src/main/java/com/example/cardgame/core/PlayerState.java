@@ -5,21 +5,31 @@ import com.example.cardgame.core.cards.Color;
 import com.example.cardgame.core.cards.UnoCard;
 import com.example.cardgame.core.utils.Hand;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerState extends CommonState {
+public class PlayerState extends CommonState implements Serializable {
     public Hand hand;
     public List<Integer> handSizes;
     public int myId;
 
-    List<PlayerStateListener> listeners = new ArrayList<>();
+    transient List<PlayerStateListener> listeners = new ArrayList<>();
     PlayerState(int player, CommonState state, Hand hand, List<Integer> handSizes) {
         super(state);
         this.myId = player;
         this.handSizes = new ArrayList<>(handSizes);
         this.hand = hand;
         System.out.println(this.hand);
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException{
+        ois.defaultReadObject();
+        listeners = new ArrayList<>();
     }
 
     public void addListener(PlayerStateListener listener) {

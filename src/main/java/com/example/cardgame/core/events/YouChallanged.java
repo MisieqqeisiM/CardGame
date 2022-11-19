@@ -3,7 +3,7 @@ package com.example.cardgame.core.events;
 import com.example.cardgame.core.PlayerState;
 
 public class YouChallanged implements PlayerEvent{
-    private final boolean won;
+    public final boolean won;
 
     public YouChallanged(boolean won) {
         this.won = won;

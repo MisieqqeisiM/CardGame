@@ -2,7 +2,10 @@ package com.example.cardgame;
 
 import com.example.cardgame.core.UnoGame;
 import com.example.cardgame.core.utils.RandomPlayer;
+import com.example.cardgame.network.Client;
+import com.example.cardgame.network.RemoteGame;
 import com.example.cardgame.ui.PlayerUI;
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -22,14 +25,17 @@ public class HelloApplication extends Application {
         Pane root = new Pane();
 
         var player = new PlayerUI();
+        var game = new RemoteGame(3333);
 
-        var game = new UnoGame(5);
-        game.join(player);
-        game.join(new RandomPlayer());
-        game.join(new RandomPlayer());
-        game.join(new RandomPlayer());
-        game.join(new RandomPlayer());
+        var client = new Client("localhost", 3333, "me", player);
 
+        var clientLoop = new AnimationTimer() {
+            @Override
+            public void handle(long l) {
+                client.update();
+            }
+        };
+        clientLoop.start();
 
         root.getChildren().add(player.getUI());
         root.setBackground(new Background(new BackgroundFill(new Color(0.7, 0.7, 0.7, 1.0), CornerRadii.EMPTY, Insets.EMPTY)));
