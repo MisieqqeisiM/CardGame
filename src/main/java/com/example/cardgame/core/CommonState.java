@@ -6,7 +6,7 @@ import com.example.cardgame.core.turnstates.*;
 
 import java.io.Serializable;
 
-public abstract class CommonState implements Serializable {
+public abstract class CommonState implements Serializable, Cloneable {
     public int playerCount;
     public int currentPlayer;
     public Direction direction;
@@ -55,4 +55,13 @@ public abstract class CommonState implements Serializable {
 
     public abstract void addCard(int player, UnoCard card);
     public abstract void removeCard(int player, UnoCard card);
+
+    @Override
+    public CommonState clone() {
+        try {
+            return (CommonState) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }

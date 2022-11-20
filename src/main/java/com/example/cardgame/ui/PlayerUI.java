@@ -1,16 +1,15 @@
 package com.example.cardgame.ui;
 
 import com.example.cardgame.core.PlayerStateListener;
-import com.example.cardgame.core.UnoPlayer;
 import com.example.cardgame.core.actions.*;
 import com.example.cardgame.core.cards.UnoCard;
 import com.example.cardgame.core.events.*;
+import com.example.cardgame.network.NetworkUnoPlayer;
+import com.example.cardgame.network.messages.NetworkInfo;
+import com.example.cardgame.network.messages.PlayerStatusUpdate;
 import javafx.animation.*;
-import javafx.application.Platform;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -21,11 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-public class PlayerUI extends UnoPlayer {
+public class PlayerUI extends NetworkUnoPlayer {
     Pane ui = new Pane();
     MyHandUI hand;
     CardUI card;
     List<YourHandUI> hands = new ArrayList<>();
+    List<PlayerStatus> statuses;
     ColorPicker picker;
     Circle playerMarker;
 
@@ -34,6 +34,26 @@ public class PlayerUI extends UnoPlayer {
     Notifier notifier;
 
     Queue<UIAnimation> animationQueue = new ArrayDeque<>();
+
+    @Override
+    public void onNetworkInfo(NetworkInfo info) {
+        statuses = info.info().stream().map(i -> new PlayerStatus(i.connectionState(), i.name())).toList();
+        ui.getChildren().addAll(statuses);
+        realignStatuses();
+    }
+
+    public void realignStatuses() {
+        if(statuses == null) return;
+        for(int i = 0; i < statuses.size(); i++) {
+            statuses.get(i).setLayoutX(getHandX(i) - 100);
+            statuses.get(i).setLayoutY(getHandY(i) - 110);
+        }
+    }
+
+    @Override
+    public void onPlayerJoined(PlayerStatusUpdate player) {
+        statuses.get(player.id()).update(player.info().connectionState(), player.info().name());
+    }
 
     abstract class UIAnimation {
         abstract void play();
@@ -97,6 +117,7 @@ public class PlayerUI extends UnoPlayer {
             hands.add(yourHand);
             ui.getChildren().add(yourHand);
         }
+
         ui.getChildren().add(playerMarker);
         ui.getChildren().add(picker);
         ui.getChildren().add(challengeButtons);
@@ -240,6 +261,7 @@ public class PlayerUI extends UnoPlayer {
                     centerY + tableRadiusY * Math.cos(position * 2 * Math.PI / state.playerCount)
             );
         }
+        realignStatuses();
         playerMarker.setTranslateX(getHandX(state.currentPlayer));
         playerMarker.setTranslateY(getHandY(state.currentPlayer) + 100);
 

@@ -4,11 +4,14 @@ import com.example.cardgame.core.UnoPlayer;
 
 import java.util.Random;
 
-public final class RandomPlayer extends UnoPlayer {
+public class RandomPlayer extends UnoPlayer {
     Random random = new Random();
     @Override
     public void eventNotify() {
-        var event = nextEvent();
+        nextEvent();
+        makeRandomMove();
+    }
+    private void makeRandomMove() {
         var actions = state.getLegalActions();
         if(!actions.isEmpty()) {
             var action = actions.get(random.nextInt(actions.size()));
@@ -17,5 +20,7 @@ public final class RandomPlayer extends UnoPlayer {
     }
 
     @Override
-    protected void onLoad() { }
+    protected void onLoad() {
+        makeRandomMove();
+    }
 }

@@ -7,7 +7,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 public abstract class UnoPlayer {
-    protected PlayerState state;
+    public PlayerState state;
     private PlayerControls controls;
     private Queue<PlayerEvent> events = new ArrayDeque<>();
 
@@ -26,11 +26,11 @@ public abstract class UnoPlayer {
     public abstract void eventNotify();
 
 
-    protected final void playAction(Action action) {
+    public final void playAction(Action action) {
         controls.playAction(action);
     }
 
-    protected final PlayerEvent nextEvent() {
+    public final PlayerEvent nextEvent() {
         var event = events.poll();
         if(event == null) return null;
         event.apply(state);

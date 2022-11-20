@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayerState extends CommonState implements Serializable {
+public class PlayerState extends CommonState implements Serializable, Cloneable {
     public Hand hand;
     public List<Integer> handSizes;
     public int myId;
@@ -67,5 +67,13 @@ public class PlayerState extends CommonState implements Serializable {
         handSizes.set(player, handSizes.get(player) - 1);
         if(myId == player)
             hand.removeCard(card);
+    }
+
+    @Override
+    public PlayerState clone() {
+        PlayerState clone = (PlayerState) super.clone();
+        clone.hand = hand.clone();
+        clone.handSizes = new ArrayList<>(handSizes);
+        return clone;
     }
 }
