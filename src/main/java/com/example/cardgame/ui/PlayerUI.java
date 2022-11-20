@@ -4,6 +4,7 @@ import com.example.cardgame.core.PlayerStateListener;
 import com.example.cardgame.core.actions.*;
 import com.example.cardgame.core.cards.UnoCard;
 import com.example.cardgame.core.events.*;
+import com.example.cardgame.network.NetworkControls;
 import com.example.cardgame.network.NetworkUnoPlayer;
 import com.example.cardgame.network.messages.NetworkInfo;
 import com.example.cardgame.network.messages.PlayerStatusUpdate;
@@ -28,6 +29,7 @@ public class PlayerUI extends NetworkUnoPlayer {
     List<PlayerStatus> statuses;
     ColorPicker picker;
     Circle playerMarker;
+    NetworkControlsUI networkControls;
 
     EmptyCardUI deck;
     ChallengeButtons challengeButtons;
@@ -50,9 +52,22 @@ public class PlayerUI extends NetworkUnoPlayer {
         }
     }
 
+    public void realignNetworkControls() {
+        if(networkControls == null) return;
+        networkControls.setLayoutX(10);
+        networkControls.setLayoutY(10);
+    }
+
     @Override
     public void onPlayerJoined(PlayerStatusUpdate player) {
         statuses.get(player.id()).update(player.info().connectionState(), player.info().name());
+    }
+
+    @Override
+    public void load(NetworkControls controls) {
+        this.networkControls = new NetworkControlsUI(controls);
+        ui.getChildren().add(networkControls);
+        realignNetworkControls();
     }
 
     abstract class UIAnimation {
@@ -80,6 +95,8 @@ public class PlayerUI extends NetworkUnoPlayer {
     }
     @Override
     protected void onLoad() {
+        ui.getChildren().clear();
+        hands.clear();
         hand = new MyHandUI(state.hand, card -> playAction(new PlayCard(card)));
         card = new CardUI(state.card);
         playerMarker = new Circle(15);
@@ -126,7 +143,6 @@ public class PlayerUI extends NetworkUnoPlayer {
         state.addListener(new PlayerStateListener() {
             @Override
             public void onCardDrawn(int player, UnoCard card) {
-                Node flyingCard;
                 if(player == state.myId){
                     tryPlay(new UIAnimation() {
                         @Override
@@ -136,7 +152,6 @@ public class PlayerUI extends NetworkUnoPlayer {
                         }
                     });
                 } else {
-                    flyingCard = new EmptyCardUI();
                     tryPlay(new UIAnimation() {
                         @Override
                         void play() {
@@ -190,6 +205,7 @@ public class PlayerUI extends NetworkUnoPlayer {
                 });
             }
         });
+        realign();
     }
 
     void flyingCard(UnoCard card, double fromX, double fromY, double toX, double toY){
@@ -262,6 +278,7 @@ public class PlayerUI extends NetworkUnoPlayer {
             );
         }
         realignStatuses();
+        realignNetworkControls();
         playerMarker.setTranslateX(getHandX(state.currentPlayer));
         playerMarker.setTranslateY(getHandY(state.currentPlayer) + 100);
 

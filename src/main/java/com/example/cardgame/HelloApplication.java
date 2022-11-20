@@ -1,9 +1,11 @@
 package com.example.cardgame;
 
+import com.example.cardgame.core.GameState;
 import com.example.cardgame.core.UnoGame;
 import com.example.cardgame.core.utils.RandomPlayer;
 import com.example.cardgame.network.Client;
 import com.example.cardgame.network.RemoteGame;
+import com.example.cardgame.network.messages.GameData;
 import com.example.cardgame.ui.PlayerUI;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -28,13 +30,30 @@ public class HelloApplication extends Application {
         dialog.setHeaderText("Enter your name");
         Optional<String> name = dialog.showAndWait();
         if(name.isEmpty()) return;
-        client(stage, name.get());
+
+        dialog = new TextInputDialog("Server address");
+        Optional<String> address = dialog.showAndWait();
+        client(stage, name.get(), address.orElse("localhost"));
 
     }
-    private static void client(Stage stage, String name) throws IOException {
+    private static void client(Stage stage, String name, String address) throws IOException {
 
-        var player = new PlayerUI();
-        var client = new Client("localhost", 3333, name, player);
+        StackPane root = new StackPane();
+        root.setAlignment(Pos.CENTER);
+        var client = new Client(address, 3333, name) {
+            @Override
+            public void onReset(GameData gameData) {
+                var player = new PlayerUI();
+                root.getChildren().clear();
+                player.getUI().prefWidthProperty().bind(root.widthProperty());
+                player.getUI().prefHeightProperty().bind(root.heightProperty());
+                stage.widthProperty().addListener((obs, oldVal, newVal) -> Platform.runLater(player::realign));
+                stage.heightProperty().addListener((obs, oldVal, newVal) -> Platform.runLater(player::realign));
+                root.getChildren().add(player.getUI());
+                setPlayer(player, gameData.state());
+                Platform.runLater(player::realign);
+            }
+        };
 
         var clientLoop = new AnimationTimer() {
             @Override
@@ -45,20 +64,13 @@ public class HelloApplication extends Application {
         clientLoop.start();
 
         stage.setTitle("UNO?");
-        Pane root = new Pane();
-        root.getChildren().add(player.getUI());
         root.setBackground(new Background(new BackgroundFill(new Color(0.7, 0.7, 0.7, 1.0), CornerRadii.EMPTY, Insets.EMPTY)));
-        player.getUI().prefWidthProperty().bind(root.widthProperty());
-        player.getUI().prefHeightProperty().bind(root.heightProperty());
-        stage.widthProperty().addListener((obs, oldVal, newVal) -> Platform.runLater(player::realign));
-        stage.heightProperty().addListener((obs, oldVal, newVal) -> Platform.runLater(player::realign));
         stage.setScene(new Scene(root, 1000, 1000));
 
         stage.setOnCloseRequest(e -> {
             client.disconnect();
         });
         stage.show();
-        Platform.runLater(player::realign);
     }
 
     public static void main(String[] args) {

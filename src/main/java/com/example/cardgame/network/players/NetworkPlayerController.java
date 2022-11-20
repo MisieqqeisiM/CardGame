@@ -2,13 +2,16 @@ package com.example.cardgame.network.players;
 
 import com.example.cardgame.core.UnoPlayer;
 import com.example.cardgame.network.ConnectionState;
+import com.example.cardgame.network.NetworkControls;
 import com.example.cardgame.network.PlayerInfo;
 import com.example.cardgame.network.messages.NetworkMessage;
 
 public abstract class NetworkPlayerController {
     private final UnoPlayer player;
     private NetworkPlayer networkPlayer;
-    public NetworkPlayerController() {
+    private final NetworkControls controls;
+    public NetworkPlayerController(NetworkControls controls) {
+        this.controls = controls;
         this.player = new UnoPlayer() {
             @Override
             public void eventNotify() {
@@ -17,9 +20,13 @@ public abstract class NetworkPlayerController {
                     networkPlayer.onEvent(event);
             }
             @Override
-            protected void onLoad() { }
+            protected void onLoad() {
+                if(networkPlayer != null)
+                    networkPlayer.connect(player::playAction, player.state.clone(), controls);
+            }
         };
     }
+
     public PlayerInfo getInfo() {
         if(networkPlayer == null)
             return new PlayerInfo(ConnectionState.NONE,"");
@@ -39,7 +46,10 @@ public abstract class NetworkPlayerController {
             this.networkPlayer = null;
             onDisconnect();
         });
-        networkPlayer.connect(player::playAction, player.state.clone());
+        networkPlayer.connect(player::playAction, player.state.clone(), controls);
+    }
+    public void disconnect() {
+        this.networkPlayer.disconnect();
     }
     protected abstract void onDisconnect();
 

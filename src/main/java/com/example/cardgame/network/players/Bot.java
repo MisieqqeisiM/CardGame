@@ -5,6 +5,7 @@ import com.example.cardgame.core.PlayerState;
 import com.example.cardgame.core.events.PlayerEvent;
 import com.example.cardgame.core.utils.RandomPlayer;
 import com.example.cardgame.network.ConnectionState;
+import com.example.cardgame.network.NetworkControls;
 import com.example.cardgame.network.PlayerInfo;
 import com.example.cardgame.network.messages.NetworkMessage;
 
@@ -22,7 +23,7 @@ public class Bot implements NetworkPlayer{
     }
 
     @Override
-    public void connect(PlayerControls controls, PlayerState state) {
+    public void connect(PlayerControls controls, PlayerState state, NetworkControls networkControls) {
         player.load(state, controls);
     }
 

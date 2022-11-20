@@ -1,6 +1,7 @@
 package com.example.cardgame.network;
 
 import com.example.cardgame.core.UnoGame;
+import com.example.cardgame.network.messages.GameData;
 import com.example.cardgame.network.messages.NetworkInfo;
 import com.example.cardgame.network.messages.PlayerStatusUpdate;
 import com.example.cardgame.network.players.Bot;
@@ -16,6 +17,7 @@ import java.util.List;
 public class RemoteGame extends Thread {
     private final ServerSocket socket;
     List<NetworkPlayerController> playerControllers = new ArrayList<>();
+    NetworkControls controls;
 
     UnoGame game;
     private class ServerThread extends Thread {
@@ -47,10 +49,34 @@ public class RemoteGame extends Thread {
     }
 
     public RemoteGame(int port) throws IOException {
+        controls = new NetworkControls() {
+            @Override
+            public void addBot() {
+                addPlayer(new Bot());
+            }
+
+            @Override
+            public void removeBot() {
+                var controller = playerControllers.stream().filter(
+                        playerController -> playerController.getInfo().connectionState() == ConnectionState.LOCAL
+                ).reduce((first, second) -> second);
+                controller.ifPresent(NetworkPlayerController::disconnect);
+            }
+
+            @Override
+            public void reset() {
+                int size = 4;
+                game = new UnoGame(4);
+                playerControllers.forEach((controller) -> game.join(controller.getPlayer()));
+                var networkInfo = playerControllers.stream().map(NetworkPlayerController::getInfo).toList();
+                playerControllers.forEach((controller) -> controller.send(new NetworkInfo(networkInfo)));
+
+            }
+        };
         int size = 4;
         game = new UnoGame(size);
         for(int i = 0; i < size; i++) {
-            var playerController = new NetworkPlayerController() {
+            var playerController = new NetworkPlayerController(controls) {
                 @Override
                 protected void onDisconnect() {
                     playerControllers.forEach(client -> client.send(new PlayerStatusUpdate(getId(), getInfo())));
@@ -59,8 +85,6 @@ public class RemoteGame extends Thread {
             game.join(playerController.getPlayer());
             playerControllers.add(playerController);
         }
-        addPlayer(new Bot());
-        addPlayer(new Bot());
         socket = new ServerSocket(port);
         new ServerThread().start();
     }

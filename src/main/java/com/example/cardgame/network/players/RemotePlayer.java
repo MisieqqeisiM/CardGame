@@ -6,6 +6,7 @@ import com.example.cardgame.core.UnoPlayer;
 import com.example.cardgame.core.events.PlayerEvent;
 import com.example.cardgame.network.Communicator;
 import com.example.cardgame.network.ConnectionState;
+import com.example.cardgame.network.NetworkControls;
 import com.example.cardgame.network.PlayerInfo;
 import com.example.cardgame.network.messages.*;
 
@@ -17,6 +18,7 @@ import java.util.function.Consumer;
 public class RemotePlayer implements NetworkPlayer {
     Communicator communicator;
     PlayerControls controls;
+    NetworkControls networkControls;
     public Runnable onGreet;
     public Runnable onQuit;
     boolean connected = false;
@@ -42,9 +44,11 @@ public class RemotePlayer implements NetworkPlayer {
         communicator.send(new Event(event));
     }
 
+
     @Override
-    public void connect(PlayerControls controls, PlayerState state) {
+    public void connect(PlayerControls controls, PlayerState state, NetworkControls networkControls) {
         this.controls = controls;
+        this.networkControls = networkControls;
         communicator.send(new GameData(state));
     }
 
@@ -83,6 +87,15 @@ public class RemotePlayer implements NetworkPlayer {
                 name = ((Greet) message).name();
                 if (onGreet != null)
                     onGreet.run();
+            } else if (message instanceof AddBot) {
+                if(networkControls != null)
+                    networkControls.addBot();
+            } else if (message instanceof RemoveBot) {
+                if(networkControls != null)
+                    networkControls.removeBot();
+            } else if (message instanceof Reset) {
+                if(networkControls != null)
+                    networkControls.reset();
             }
             if (message instanceof ActionMessage) {
                 controls.playAction(((ActionMessage) message).action());
